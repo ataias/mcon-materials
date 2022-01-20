@@ -45,8 +45,7 @@ class SuperStorageModel: ObservableObject {
 
     await addDownload(name: file.name)
 
-    let (data, response) = try await
-      URLSession.shared.data(from: url, delegate: nil)
+    let (data, response) = try await URLSession.shared.data(from: url, delegate: nil)
 
     await updateDownload(name: file.name, progress: 1.0)
 
@@ -63,7 +62,9 @@ class SuperStorageModel: ObservableObject {
   }
 
   /// Downloads a file, returns its data, and updates the download progress in ``downloads``.
-  private func downloadWithProgress(fileName: String, name: String, size: Int, offset: Int? = nil) async throws -> Data {
+  private func downloadWithProgress(fileName: String, name: String, size: Int, offset: Int? = nil)
+    async throws -> Data
+  {
     guard let url = URL(string: "http://localhost:8080/files/download?\(fileName)") else {
       throw "Could not create the URL."
     }
@@ -99,17 +100,18 @@ class SuperStorageModel: ObservableObject {
       throw "Could not create the URL."
     }
 
-    let (data, response) = try await
-    URLSession.shared.data(from: url)
+    let (data, response) = try await URLSession.shared.data(from: url)
 
     guard (response as? HTTPURLResponse)?.statusCode == 200 else {
       throw "The server responded with an error."
     }
 
-    guard let list = try? JSONDecoder()
-            .decode([DownloadFile].self, from: data) else {
-              throw "The server response was not recognized."
-            }
+    guard
+      let list = try? JSONDecoder()
+        .decode([DownloadFile].self, from: data)
+    else {
+      throw "The server response was not recognized."
+    }
 
     return list
   }
@@ -119,8 +121,7 @@ class SuperStorageModel: ObservableObject {
       throw "Could not create the URL."
     }
 
-    let (data, response) = try await
-      URLSession.shared.data(from: url, delegate: nil)
+    let (data, response) = try await URLSession.shared.data(from: url, delegate: nil)
 
     guard (response as? HTTPURLResponse)?.statusCode == 200 else {
       throw "The server responded with an error."
@@ -136,7 +137,7 @@ extension SuperStorageModel {
     let downloadInfo = DownloadInfo(id: UUID(), name: name, progress: 0.0)
     downloads.append(downloadInfo)
   }
-  
+
   /// Updates a the progress of a given download.
   @MainActor func updateDownload(name: String, progress: Double) {
     if let index = downloads.firstIndex(where: { $0.name == name }) {

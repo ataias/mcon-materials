@@ -83,8 +83,7 @@ class ScanModel: ObservableObject {
 
   func systemConnectivityHandler() {
     Task {
-      for await notification in
-        NotificationCenter.default.notifications(named: .connected) {
+      for await notification in NotificationCenter.default.notifications(named: .connected) {
         guard let name = notification.object as? String else { continue }
         print("[Notification] Connected: \(name)")
         await systems.addSystem(name: name, service: self.service)
@@ -95,8 +94,7 @@ class ScanModel: ObservableObject {
     }
 
     Task {
-      for await notification in
-        NotificationCenter.default.notifications(named: .disconnected) {
+      for await notification in NotificationCenter.default.notifications(named: .disconnected) {
         guard let name = notification.object as? String else { return }
         print("[Notification] Disconnected: \(name)")
         await systems.removeSystem(name: name)
@@ -112,7 +110,7 @@ class ScanModel: ObservableObject {
     try await withThrowingTaskGroup(
       of: Result<String, ScanTaskError>.self
     ) { [unowned self] group in
-      for number in 0 ..< total {
+      for number in 0..<total {
         let system = await systems.firstAvailableSystem()
         group.addTask {
           return await self.worker(number: number, system: system)
@@ -126,9 +124,9 @@ class ScanModel: ObservableObject {
         case .failure(let error):
           group.addTask(priority: .high) {
             print(
-							"Re-run task: \(error.task.input).",
-							"Failed with: \(error.underlyingError.localizedDescription)"
-						)
+              "Re-run task: \(error.task.input).",
+              "Failed with: \(error.underlyingError.localizedDescription)"
+            )
             return await self.worker(
               number: error.task.input,
               system: self.systems.localSystem)
@@ -145,7 +143,8 @@ class ScanModel: ObservableObject {
   }
 
   func worker(number: Int, system: ScanSystem) async
-  -> Result<String, ScanTaskError> {
+    -> Result<String, ScanTaskError>
+  {
     await onScheduled()
 
     let task = ScanTask(input: number)
@@ -154,10 +153,11 @@ class ScanModel: ObservableObject {
     do {
       result = try await system.run(task)
     } catch {
-      return .failure(.init(
-        underlyingError: error,
-        task: task
-      ))
+      return .failure(
+        .init(
+          underlyingError: error,
+          task: task
+        ))
     }
 
     await onTaskCompleted()

@@ -70,35 +70,39 @@ struct ChatView: View {
       .frame(maxWidth: .infinity, maxHeight: .infinity)
 
       HStack {
-        Button(action: {
-          Task {
-            do {
-              try await model.shareLocation()
-            } catch {
-              lastErrorMessage = error.localizedDescription
+        Button(
+          action: {
+            Task {
+              do {
+                try await model.shareLocation()
+              } catch {
+                lastErrorMessage = error.localizedDescription
+              }
             }
-          }
-        }, label: {
-          Image(systemName: "location.circle.fill")
-            .font(.title)
-            .foregroundColor(Color.gray)
-        })
+          },
+          label: {
+            Image(systemName: "location.circle.fill")
+              .font(.title)
+              .foregroundColor(Color.gray)
+          })
 
-        Button(action: {
-          Task {
-            do {
-              let countdownMessage = message
-              message = ""
-              try await model.countdown(to: countdownMessage)
-            } catch {
-              lastErrorMessage = error.localizedDescription
+        Button(
+          action: {
+            Task {
+              do {
+                let countdownMessage = message
+                message = ""
+                try await model.countdown(to: countdownMessage)
+              } catch {
+                lastErrorMessage = error.localizedDescription
+              }
             }
-          }
-        }, label: {
-          Image(systemName: "timer")
-            .font(.title)
-            .foregroundColor(Color.gray)
-        })
+          },
+          label: {
+            Image(systemName: "timer")
+              .font(.title)
+              .foregroundColor(Color.gray)
+          })
 
         TextField(text: $message, prompt: Text("Message")) {
           Text("Enter message")
@@ -113,28 +117,34 @@ struct ChatView: View {
           focused = true
         }
 
-        Button(action: {
-          Task {
-            try await model.say(message)
-            message = ""
-          }
-        }, label: {
-          Image(systemName: "arrow.up.circle.fill")
-            .font(.title)
-        })
+        Button(
+          action: {
+            Task {
+              try await model.say(message)
+              message = ""
+            }
+          },
+          label: {
+            Image(systemName: "arrow.up.circle.fill")
+              .font(.title)
+          })
       }
     }
     .padding()
     .onAppear {
       focused = true
     }
-    .alert("Error", isPresented: $isDisplayingError, actions: {
-      Button("Close", role: .cancel) {
-        self.presentationMode.wrappedValue.dismiss()
+    .alert(
+      "Error", isPresented: $isDisplayingError,
+      actions: {
+        Button("Close", role: .cancel) {
+          self.presentationMode.wrappedValue.dismiss()
+        }
+      },
+      message: {
+        Text(lastErrorMessage)
       }
-    }, message: {
-      Text(lastErrorMessage)
-    })
+    )
     .task {
       do {
         try await model.chat()

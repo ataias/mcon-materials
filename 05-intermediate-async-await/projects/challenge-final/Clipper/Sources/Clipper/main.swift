@@ -31,6 +31,7 @@
 /// THE SOFTWARE.
 
 import Foundation
+
 // Makes the default session requests not time out.
 let liveURLSession: URLSession = {
   let configuration = URLSessionConfiguration.default
@@ -60,7 +61,7 @@ Task {
 
 Task {
   let url = URL(string: "http://localhost:8080/cli/say")!
-  
+
   // Loop over the lines in the standard input and send them to the server.
   for try await line in FileHandle.standardInput.bytes.lines {
     var request = URLRequest(url: url)

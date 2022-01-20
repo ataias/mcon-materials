@@ -30,8 +30,8 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-import SwiftUI
 import Combine
+import SwiftUI
 
 @main
 struct SkyApp: App {
@@ -64,37 +64,44 @@ struct SkyApp: App {
             scheduled: $scanModel.scheduled
           )
 
-          Button(action: {
-            Task {
-              isScanning = true
-              do {
-                let start = Date().timeIntervalSinceReferenceDate
-                try await scanModel.runAllTasks()
-                let end = Date().timeIntervalSinceReferenceDate
-                lastMessage = String(
-                  format: "Finished %d scans in %.2f seconds.",
-                  scanModel.total,
-                  end - start
-                )
-              } catch {
-                lastMessage = error.localizedDescription
+          Button(
+            action: {
+              Task {
+                isScanning = true
+                do {
+                  let start = Date().timeIntervalSinceReferenceDate
+                  try await scanModel.runAllTasks()
+                  let end = Date().timeIntervalSinceReferenceDate
+                  lastMessage = String(
+                    format: "Finished %d scans in %.2f seconds.",
+                    scanModel.total,
+                    end - start
+                  )
+                } catch {
+                  lastMessage = error.localizedDescription
+                }
+                isScanning = false
               }
-              isScanning = false
+            },
+            label: {
+              HStack(spacing: 6) {
+                if isScanning { ProgressView() }
+                Text("Engage systems")
+              }
             }
-          }, label: {
-            HStack(spacing: 6) {
-              if isScanning { ProgressView() }
-              Text("Engage systems")
-            }
-          })
+          )
           .buttonStyle(.bordered)
           .disabled(isScanning)
         }
-        .alert("Message", isPresented: $isDisplayingMessage, actions: {
-          Button("Close", role: .cancel) { }
-        }, message: {
-          Text(lastMessage)
-        })
+        .alert(
+          "Message", isPresented: $isDisplayingMessage,
+          actions: {
+            Button("Close", role: .cancel) {}
+          },
+          message: {
+            Text(lastMessage)
+          }
+        )
         .padding()
         .statusBar(hidden: true)
       }

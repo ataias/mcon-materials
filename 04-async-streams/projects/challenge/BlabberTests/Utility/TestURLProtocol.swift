@@ -47,7 +47,7 @@ class TestURLProtocol: URLProtocol {
     guard let client = client,
       let url = request.url,
       let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)
-      else { fatalError("Client or URL missing") }
+    else { fatalError("Client or URL missing") }
 
     client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
     client.urlProtocol(self, didLoad: Data())

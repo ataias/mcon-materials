@@ -30,8 +30,8 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-import CoreLocation
 import Contacts
+import CoreLocation
 
 /// A type that converts a location into a human readable address.
 enum AddressEncoder {
@@ -46,10 +46,11 @@ enum AddressEncoder {
       do {
         guard
           let placemark = try await geocoder.reverseGeocodeLocation(location).first,
-          let address = placemark.postalAddress else {
-            completion(nil, "No addresses found")
-            return
-          }
+          let address = placemark.postalAddress
+        else {
+          completion(nil, "No addresses found")
+          return
+        }
         completion(CNPostalAddressFormatter.string(from: address, style: .mailingAddress), nil)
       } catch {
         completion(nil, error)

@@ -31,6 +31,7 @@
 /// THE SOFTWARE.
 
 import Foundation
+
 // Makes the default session requests not time out.
 let liveURLSession: URLSession = {
   let configuration = URLSessionConfiguration.default
@@ -48,7 +49,7 @@ Task {
   let url = URL(string: "http://localhost:8080/cli/chat?\(username)")!
   do {
     // Loop over the server response lines and print them.
-    
+
   } catch {
     print(error.localizedDescription)
     exit(1)
@@ -57,9 +58,9 @@ Task {
 
 Task {
   let url = URL(string: "http://localhost:8080/cli/say")!
-  
+
   // Loop over the lines in the standard input and send them to the server.
-  
+
 }
 
 RunLoop.main.run()

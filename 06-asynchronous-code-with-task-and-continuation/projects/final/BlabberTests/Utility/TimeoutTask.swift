@@ -39,21 +39,19 @@ class TimeoutTask<Success> {
   private var continuation: CheckedContinuation<Success, Error>?
 
   var value: Success {
-    get async throws {
-      try await withCheckedThrowingContinuation { continuation in
-        self.continuation = continuation
+    try await withCheckedThrowingContinuation { continuation in
+      self.continuation = continuation
 
-        Task {
-          try await Task.sleep(nanoseconds: nanoseconds)
-          self.continuation?.resume(throwing: TimeoutError())
-          self.continuation = nil
-        }
+      Task {
+        try await Task.sleep(nanoseconds: nanoseconds)
+        self.continuation?.resume(throwing: TimeoutError())
+        self.continuation = nil
+      }
 
-        Task {
-          let result = try await operation()
-          self.continuation?.resume(returning: result)
-          self.continuation = nil
-        }
+      Task {
+        let result = try await operation()
+        self.continuation?.resume(returning: result)
+        self.continuation = nil
       }
     }
   }

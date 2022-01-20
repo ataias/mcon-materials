@@ -45,28 +45,34 @@ struct TickerView: View {
 
   var body: some View {
     List {
-      Section(content: {
-        // Show the list of selected symbols
-        ForEach(model.tickerSymbols, id: \.name) { symbolName in
-          HStack {
-            Text(symbolName.name)
-            Spacer()
-              .frame(maxWidth: .infinity)
-            Text(String(format: "%.3f", arguments: [symbolName.value]))
+      Section(
+        content: {
+          // Show the list of selected symbols
+          ForEach(model.tickerSymbols, id: \.name) { symbolName in
+            HStack {
+              Text(symbolName.name)
+              Spacer()
+                .frame(maxWidth: .infinity)
+              Text(String(format: "%.3f", arguments: [symbolName.value]))
+            }
           }
-        }
-      }, header: {
-        Label(" Live", systemImage: "clock.arrow.2.circlepath")
-          .foregroundColor(Color(uiColor: .systemGreen))
-          .font(.custom("FantasqueSansMono-Regular", size: 42))
-          .padding(.bottom, 20)
-      })
+        },
+        header: {
+          Label(" Live", systemImage: "clock.arrow.2.circlepath")
+            .foregroundColor(Color(uiColor: .systemGreen))
+            .font(.custom("FantasqueSansMono-Regular", size: 42))
+            .padding(.bottom, 20)
+        })
     }
-    .alert("Error", isPresented: $isDisplayingError, actions: {
-      Button("Close", role: .cancel) { }
-    }, message: {
-      Text(lastErrorMessage)
-    })
+    .alert(
+      "Error", isPresented: $isDisplayingError,
+      actions: {
+        Button("Close", role: .cancel) {}
+      },
+      message: {
+        Text(lastErrorMessage)
+      }
+    )
     .listStyle(PlainListStyle())
     .font(.custom("FantasqueSansMono-Regular", size: 18))
     .padding(.horizontal)
@@ -75,7 +81,8 @@ struct TickerView: View {
         try await model.startTicker(selectedSymbols)
       } catch {
         if let error = error as? URLError,
-           error.code == .cancelled {
+          error.code == .cancelled
+        {
           return
         }
 

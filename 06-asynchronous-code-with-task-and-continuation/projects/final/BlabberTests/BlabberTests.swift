@@ -31,6 +31,7 @@
 /// THE SOFTWARE.
 
 import XCTest
+
 @testable import Blabber
 
 class BlabberTests: XCTestCase {
@@ -57,8 +58,9 @@ class BlabberTests: XCTestCase {
     )
 
     let httpBody = try XCTUnwrap(request.httpBody)
-    let message = try XCTUnwrap(try? JSONDecoder()
-      .decode(Message.self, from: httpBody))
+    let message = try XCTUnwrap(
+      try? JSONDecoder()
+        .decode(Message.self, from: httpBody))
 
     XCTAssertEqual(message.message, "Hello!")
   }

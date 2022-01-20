@@ -48,7 +48,7 @@ struct TitleView: View {
     "s|2 |2k|2 |0y|1 |3n|2 |1e|0 |1t|1",
     "s|1 |2k|2 |2y|0 |1n|3 |2e|1 |0t|1",
     "s|1 |1k|2 |2y|2 |0n|1 |3e|2 |1t|0",
-    "s|0 |1k|1 |2y|2 |2n|0 |1e|3 |2t|1"
+    "s|0 |1k|1 |2y|2 |2n|0 |1e|3 |2t|1",
   ]
 
   private func updateTitle() {

@@ -53,7 +53,8 @@ class ScanTransport: NSObject {
       serviceType: systemNetworkName
     )
     serviceBrowser = MCNearbyServiceBrowser(peer: localSystemName, serviceType: systemNetworkName)
-    session = MCSession(peer: localSystemName, securityIdentity: nil, encryptionPreference: .required)
+    session = MCSession(
+      peer: localSystemName, securityIdentity: nil, encryptionPreference: .required)
 
     self.localSystem = localSystem
 
@@ -75,19 +76,21 @@ class ScanTransport: NSObject {
     task: ScanTask,
     to recipient: String
   ) async throws -> String {
-    guard let targetPeer = session.connectedPeers.first(
-      where: { $0.displayName == recipient }) else {
-        throw "Peer '\(recipient)' not connected anymore."
-      }
+    guard
+      let targetPeer = session.connectedPeers.first(
+        where: { $0.displayName == recipient })
+    else {
+      throw "Peer '\(recipient)' not connected anymore."
+    }
 
     let payload = try JSONEncoder().encode(task)
     try session.send(payload, toPeers: [targetPeer], with: .reliable)
 
     let networkRequest = TimeoutTask(seconds: 5) { () -> String in
-      for await notification in
-        NotificationCenter.default.notifications(named: .response) {
+      for await notification in NotificationCenter.default.notifications(named: .response) {
         guard let response = notification.object as? TaskResponse,
-					response.id == task.id else { continue }
+          response.id == task.id
+        else { continue }
 
         return "\(response.result) by \(recipient)"
       }
@@ -95,8 +98,7 @@ class ScanTransport: NSObject {
     }
 
     Task {
-      for await notification in
-        NotificationCenter.default.notifications(named: .disconnected) {
+      for await notification in NotificationCenter.default.notifications(named: .disconnected) {
         guard notification.object as? String == recipient else { continue }
 
         await networkRequest.cancel()
@@ -147,7 +149,8 @@ extension ScanTransport: MCSessionDelegate {
     if let task = try? decoder.decode(ScanTask.self, from: data) {
       Task { [weak self] in
         guard let self = self,
-					let taskModel = self.taskModel else { return }
+          let taskModel = self.taskModel
+        else { return }
 
         let result = try await taskModel.run(task)
         let response = TaskResponse(result: result, id: task.id)
@@ -155,8 +158,10 @@ extension ScanTransport: MCSessionDelegate {
       }
     }
 
-    if let response = try? decoder
-      .decode(TaskResponse.self, from: data) {
+    if let response =
+      try? decoder
+      .decode(TaskResponse.self, from: data)
+    {
       NotificationCenter.default.post(
         name: .response,
         object: response
@@ -168,11 +173,15 @@ extension ScanTransport: MCSessionDelegate {
 // MARK: - Service advertiser delegate implementation.
 
 extension ScanTransport: MCNearbyServiceAdvertiserDelegate {
-  func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error) {
+  func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: Error)
+  {
     print("ScanTransport service advertiser failed: \(error.localizedDescription)")
   }
 
-  func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
+  func advertiser(
+    _ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID,
+    withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void
+  ) {
     // Automatically accept session invitations from all bonjour peers.
     invitationHandler(true, session)
   }
@@ -185,7 +194,10 @@ extension ScanTransport: MCNearbyServiceBrowserDelegate {
     print("ScanTransport service browse failed: \(error.localizedDescription)")
   }
 
-  func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
+  func browser(
+    _ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID,
+    withDiscoveryInfo info: [String: String]?
+  ) {
     // Automatically invite all found peers.
     browser.invitePeer(peerID, to: session, withContext: nil, timeout: 10)
   }
@@ -198,7 +210,16 @@ extension ScanTransport: MCNearbyServiceBrowserDelegate {
 // MARK: - Required, unused `MCSessionDelegate` methods.
 
 extension ScanTransport {
-  func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) { }
-  func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) { }
-  func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) { }
+  func session(
+    _ session: MCSession, didReceive stream: InputStream, withName streamName: String,
+    fromPeer peerID: MCPeerID
+  ) {}
+  func session(
+    _ session: MCSession, didStartReceivingResourceWithName resourceName: String,
+    fromPeer peerID: MCPeerID, with progress: Progress
+  ) {}
+  func session(
+    _ session: MCSession, didFinishReceivingResourceWithName resourceName: String,
+    fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?
+  ) {}
 }

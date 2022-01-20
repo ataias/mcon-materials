@@ -50,7 +50,7 @@ class ScanModel: ObservableObject {
 
   @Published var total: Int
 
-	@MainActor @Published var isCollaborating = false
+  @MainActor @Published var isCollaborating = false
 
   // MARK: - Methods
 

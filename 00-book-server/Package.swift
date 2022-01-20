@@ -8,7 +8,7 @@ let package = Package(
   ],
   dependencies: [
     // 💧 A server-side Swift web framework.
-    .package(url: "https://github.com/vapor/vapor.git", .exact("4.49.0")),
+    .package(url: "https://github.com/vapor/vapor.git", .exact("4.49.0"))
   ],
   targets: [
     .target(
@@ -20,6 +20,6 @@ let package = Package(
         .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
       ]
     ),
-    .executableTarget(name: "Run", dependencies: [.target(name: "App")])
+    .executableTarget(name: "Run", dependencies: [.target(name: "App")]),
   ]
 )

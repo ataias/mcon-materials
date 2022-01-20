@@ -30,9 +30,9 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
+import AppKit
 import Foundation
 import Vapor
-import AppKit
 
 struct ImageFile: Codable {
   init(nr: Int, name: String) {
@@ -45,7 +45,7 @@ struct ImageFile: Codable {
       .joined(separator: " ")
 
     self.url = "/gallery/image?\(nr)"
-    self.price = Double.random(in: 5 ... 1000)
+    self.price = Double.random(in: 5...1000)
     self.checksum = UUID().uuidString
   }
 
@@ -55,7 +55,10 @@ struct ImageFile: Codable {
   let checksum: String
 }
 
-let emojis = ["😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "🥲", "☺️", "😊", "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰", "🚲", "🛵", "🏍", "🛺", "🚨", "🚍", "🚘", "🚖", "🚃", "🚋", "🚞"]
+let emojis = [
+  "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "🥲", "☺️", "😊", "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰", "🚲",
+  "🛵", "🏍", "🛺", "🚨", "🚍", "🚘", "🚖", "🚃", "🚋", "🚞",
+]
 
 let images: [ImageFile] = {
   return emojis.enumerated().map { pair in
@@ -78,11 +81,14 @@ func image(nr: Int) -> Data {
 
   default: fatalError("Impossible")
   }
-  let image = NSImage(gradientColors: gradient, imageSize: .init(width: 360, height: 650), includeDate: false)!
+  let image = NSImage(
+    gradientColors: gradient, imageSize: .init(width: 360, height: 650), includeDate: false)!
   image.lockFocus()
-  (emojis[nr] as NSString).draw(at: NSPoint(x: 70, y: 250), withAttributes: [
-    NSAttributedString.Key.font: NSFont.boldSystemFont(ofSize: 200)
-  ])
+  (emojis[nr] as NSString).draw(
+    at: NSPoint(x: 70, y: 250),
+    withAttributes: [
+      NSAttributedString.Key.font: NSFont.boldSystemFont(ofSize: 200)
+    ])
   image.unlockFocus()
 
   let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)!
@@ -103,10 +109,12 @@ struct Gallery {
     app.get("gallery", "image") { req -> Response in
 
       guard let number = try? req.query.decode(Int.self), number % 10 > 0,
-          number < images.count else {
-            let responseData = try! JSONSerialization.data(withJSONObject: ["error": "File not found."], options: .prettyPrinted)
-            return Response(body: .init(data: responseData))
-          }
+        number < images.count
+      else {
+        let responseData = try! JSONSerialization.data(
+          withJSONObject: ["error": "File not found."], options: .prettyPrinted)
+        return Response(body: .init(data: responseData))
+      }
 
       let response = Response(status: .ok, body: .init(data: cache[number]!))
       response.headers.add(name: .contentType, value: "application/octet-stream")

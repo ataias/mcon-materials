@@ -1,15 +1,15 @@
 /// Copyright (c) 2021 Razeware LLC
-/// 
+///
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
 /// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 /// copies of the Software, and to permit persons to whom the Software is
 /// furnished to do so, subject to the following conditions:
-/// 
+///
 /// The above copyright notice and this permission notice shall be included in
 /// all copies or substantial portions of the Software.
-/// 
+///
 /// Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
 /// distribute, sublicense, create a derivative work, and/or sell copies of the
 /// Software in any work that is designed, intended, or marketed for pedagogical or
@@ -17,7 +17,7 @@
 /// or information technology.  Permission for such use, copying, modification,
 /// merger, publication, distribution, sublicensing, creation of derivative works,
 /// or sale is expressly withheld.
-/// 
+///
 /// This project and source code may use libraries or frameworks that are
 /// released under various Open-Source licenses. Use of those libraries and
 /// frameworks are governed by their own individual licenses.
@@ -49,7 +49,7 @@ struct ListView: View {
   var columns: [GridItem] = [
     GridItem(.flexible(minimum: 50, maximum: 120)),
     GridItem(.flexible(minimum: 50, maximum: 120)),
-    GridItem(.flexible(minimum: 50, maximum: 120))
+    GridItem(.flexible(minimum: 50, maximum: 120)),
   ]
 
   var body: some View {
@@ -63,15 +63,17 @@ struct ListView: View {
           LazyVGrid(columns: columns, spacing: 2) {
             ForEach(model.imageFeed) { image in
               VStack(alignment: .center) {
-                Button(action: {
-                  selected = image
-                }, label: {
-                  ThumbImage(file: image)
-                    .frame(width: geo.size.width / 3 * 0.75, height: geo.size.width / 3 * 0.75)
-                    .clipped()
-                    .padding(.horizontal, 2)
-                    .padding(.vertical, 4)
-                })
+                Button(
+                  action: {
+                    selected = image
+                  },
+                  label: {
+                    ThumbImage(file: image)
+                      .frame(width: geo.size.width / 3 * 0.75, height: geo.size.width / 3 * 0.75)
+                      .clipped()
+                      .padding(.horizontal, 2)
+                      .padding(.vertical, 4)
+                  })
 
                 Text(image.name)
                   .fontWeight(.bold)
@@ -88,18 +90,26 @@ struct ListView: View {
           }
         }
       }
-      .alert("Error", isPresented: $isDisplayingError, actions: {
-        Button("Close", role: .cancel) { }
-      }, message: {
-        Text(lastErrorMessage)
-      })
-      .sheet(isPresented: $isDisplayingPreview, onDismiss: {
-        selected = nil
-      }, content: {
-        if let selected = selected {
-          DetailsView(file: selected)
+      .alert(
+        "Error", isPresented: $isDisplayingError,
+        actions: {
+          Button("Close", role: .cancel) {}
+        },
+        message: {
+          Text(lastErrorMessage)
         }
-      })
+      )
+      .sheet(
+        isPresented: $isDisplayingPreview,
+        onDismiss: {
+          selected = nil
+        },
+        content: {
+          if let selected = selected {
+            DetailsView(file: selected)
+          }
+        }
+      )
       .onChange(of: selected) { newValue in
         isDisplayingPreview = newValue != nil
       }

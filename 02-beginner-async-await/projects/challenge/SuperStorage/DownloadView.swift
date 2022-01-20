@@ -55,7 +55,7 @@ struct DownloadView: View {
           Task {
             do {
               fileData = try await model.download(file: file)
-            } catch { }
+            } catch {}
             isDownloadActive = false
           }
         },
@@ -78,9 +78,11 @@ struct DownloadView: View {
     .animation(.easeOut(duration: 0.33), value: model.downloads)
     .listStyle(InsetGroupedListStyle())
     .toolbar(content: {
-      Button(action: {
-      }, label: { Text("Cancel All") })
-        .disabled(model.downloads.isEmpty)
+      Button(
+        action: {
+        }, label: { Text("Cancel All") }
+      )
+      .disabled(model.downloads.isEmpty)
     })
     .onDisappear {
       fileData = nil

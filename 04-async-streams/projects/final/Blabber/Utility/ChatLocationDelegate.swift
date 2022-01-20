@@ -30,8 +30,8 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-import Foundation
 import CoreLocation
+import Foundation
 
 class ChatLocationDelegate: NSObject, CLLocationManagerDelegate {
 }

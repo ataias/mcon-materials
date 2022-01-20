@@ -30,9 +30,9 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-import Foundation
-import CoreLocation
 import Combine
+import CoreLocation
+import Foundation
 import UIKit
 
 /// The app model that communicates with the server.
@@ -81,7 +81,7 @@ class BlabberModel: ObservableObject {
     guard
       let query = username.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
       let url = URL(string: "http://localhost:8080/chat/room?\(query)")
-      else {
+    else {
       throw "Invalid username"
     }
 
@@ -110,8 +110,9 @@ class BlabberModel: ObservableObject {
     }
 
     guard let data = first.data(using: .utf8),
-          let status = try? JSONDecoder()
-            .decode(ServerStatus.self, from: data) else {
+      let status = try? JSONDecoder()
+        .decode(ServerStatus.self, from: data)
+    else {
       throw "Invalid response from server"
     }
 
@@ -131,7 +132,8 @@ class BlabberModel: ObservableObject {
 
     for try await line in stream.lines {
       if let data = line.data(using: .utf8),
-        let update = try? JSONDecoder().decode(Message.self, from: data) {
+        let update = try? JSONDecoder().decode(Message.self, from: data)
+      {
         messages.append(update)
       }
     }
@@ -159,14 +161,16 @@ class BlabberModel: ObservableObject {
   func observeAppStatus() async {
     Task {
       for await _ in await NotificationCenter.default
-        .notifications(for: UIApplication.willResignActiveNotification) {
+        .notifications(for: UIApplication.willResignActiveNotification)
+      {
         try? await say("\(username) went away", isSystemMessage: true)
       }
     }
 
     Task {
       for await _ in await NotificationCenter.default
-        .notifications(for: UIApplication.didBecomeActiveNotification) {
+        .notifications(for: UIApplication.didBecomeActiveNotification)
+      {
         try? await say("\(username) came back", isSystemMessage: true)
       }
     }

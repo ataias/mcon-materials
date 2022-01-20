@@ -50,17 +50,21 @@ struct ScanningView: View {
 
   var body: some View {
     VStack(alignment: .leading) {
-      ProgressView("\(scheduled) scheduled", value: Double(min(scheduled, total)), total: Double(total))
-        .tint(colorForAvg(scheduled))
-        .padding()
+      ProgressView(
+        "\(scheduled) scheduled", value: Double(min(scheduled, total)), total: Double(total)
+      )
+      .tint(colorForAvg(scheduled))
+      .padding()
 
       ProgressView(String(format: "%.2f per sec.", perSecond), value: min(perSecond, 10), total: 10)
         .tint(colorForAvg(Int(perSecond)))
         .padding()
 
-      ProgressView("\(completed) tasks completed", value: min(1.0, Double(completed) / Double(total)))
-        .tint(Color.blue)
-        .padding()
+      ProgressView(
+        "\(completed) tasks completed", value: min(1.0, Double(completed) / Double(total))
+      )
+      .tint(Color.blue)
+      .padding()
     }
     .font(.callout)
     .padding()

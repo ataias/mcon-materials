@@ -30,8 +30,8 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-import SwiftUI
 import Combine
+import SwiftUI
 import UIKit
 
 /// The file download view.
@@ -51,7 +51,8 @@ struct DownloadView: View {
       guard isDownloadActive else { return }
       let startTime = Date().timeIntervalSince1970
 
-      let timerSequence = Timer
+      let timerSequence =
+        Timer
         .publish(every: 1, tolerance: 1, on: .main, in: .common)
         .autoconnect()
         .map { date -> String in
@@ -82,7 +83,7 @@ struct DownloadView: View {
           Task {
             do {
               fileData = try await model.download(file: file)
-            } catch { }
+            } catch {}
             isDownloadActive = false
           }
         },
@@ -94,9 +95,9 @@ struct DownloadView: View {
               try await SuperStorageModel
                 .$supportsPartialDownloads
                 .withValue(file.name.hasSuffix(".jpeg")) {
-                fileData = try await model.downloadWithProgress(file: file)
-              }
-            } catch { }
+                  fileData = try await model.downloadWithProgress(file: file)
+                }
+            } catch {}
             isDownloadActive = false
           }
         },
@@ -106,7 +107,7 @@ struct DownloadView: View {
           Task {
             do {
               fileData = try await model.multiDownloadWithProgress(file: file)
-            } catch { }
+            } catch {}
             isDownloadActive = false
           }
         }
@@ -129,11 +130,13 @@ struct DownloadView: View {
     .animation(.easeOut(duration: 0.33), value: model.downloads)
     .listStyle(InsetGroupedListStyle())
     .toolbar(content: {
-      Button(action: {
-        model.stopDownloads = true
-        timerTask?.cancel()
-      }, label: { Text("Cancel All") })
-        .disabled(model.downloads.isEmpty)
+      Button(
+        action: {
+          model.stopDownloads = true
+          timerTask?.cancel()
+        }, label: { Text("Cancel All") }
+      )
+      .disabled(model.downloads.isEmpty)
     })
     .onDisappear {
       fileData = nil

@@ -4,10 +4,10 @@
 import PackageDescription
 
 let package = Package(
-    name: "Clipper",
-    platforms: [.macOS(.v12)],
-    dependencies: [],
-    targets: [
-        .executableTarget(name: "Clipper", dependencies: [])
-    ]
+  name: "Clipper",
+  platforms: [.macOS(.v12)],
+  dependencies: [],
+  targets: [
+    .executableTarget(name: "Clipper", dependencies: [])
+  ]
 )

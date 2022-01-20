@@ -45,11 +45,13 @@ class TestURLProtocol: URLProtocol {
   /// Store the URL request and send success response back to the client.
   override func startLoading() {
     guard let client = client,
-          let url = request.url,
-          let response = HTTPURLResponse(url: url,
-                                         statusCode: 200,
-                                         httpVersion: nil,
-                                         headerFields: nil) else {
+      let url = request.url,
+      let response = HTTPURLResponse(
+        url: url,
+        statusCode: 200,
+        httpVersion: nil,
+        headerFields: nil)
+    else {
       fatalError("Client or URL missing")
     }
 

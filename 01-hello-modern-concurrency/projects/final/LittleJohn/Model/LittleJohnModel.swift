@@ -33,7 +33,7 @@
 import Foundation
 
 /// Easily throw generic errors with a text description.
-extension String: Error { }
+extension String: Error {}
 
 /// The app model that communicates with the server.
 class LittleJohnModel: ObservableObject {
@@ -43,7 +43,10 @@ class LittleJohnModel: ObservableObject {
   /// Start live updates for the provided stock symbols.
   func startTicker(_ selectedSymbols: [String]) async throws {
     tickerSymbols = []
-    guard let url = URL(string: "http://localhost:8080/littlejohn/ticker?\(selectedSymbols.joined(separator: ","))") else {
+    guard
+      let url = URL(
+        string: "http://localhost:8080/littlejohn/ticker?\(selectedSymbols.joined(separator: ","))")
+    else {
       throw "The URL could not be created."
     }
 

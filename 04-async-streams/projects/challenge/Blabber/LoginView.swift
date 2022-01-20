@@ -44,20 +44,25 @@ struct LoginView: View {
         .foregroundColor(Color.teal)
 
       HStack {
-        TextField(text: $username, prompt: Text("Username")) { }
-        .textFieldStyle(RoundedBorderTextFieldStyle())
+        TextField(text: $username, prompt: Text("Username")) {}
+          .textFieldStyle(RoundedBorderTextFieldStyle())
 
-        Button(action: {
-          model.username = username
-          self.isDisplayingChat = true
-        }, label: {
-          Image(systemName: "arrow.right.circle.fill")
-            .font(.title)
-            .foregroundColor(Color.teal)
-        })
-        .sheet(isPresented: $isDisplayingChat, onDismiss: {}, content: {
-          ChatView(model: model)
-        })
+        Button(
+          action: {
+            model.username = username
+            self.isDisplayingChat = true
+          },
+          label: {
+            Image(systemName: "arrow.right.circle.fill")
+              .font(.title)
+              .foregroundColor(Color.teal)
+          }
+        )
+        .sheet(
+          isPresented: $isDisplayingChat, onDismiss: {},
+          content: {
+            ChatView(model: model)
+          })
       }
       .padding(.horizontal)
     }

@@ -59,40 +59,50 @@ struct ListView: View {
     NavigationView {
       VStack {
         // Programatically push the file download view.
-        NavigationLink(destination: DownloadView(file: selected).environmentObject(model),
-                       isActive: $isDisplayingDownload) {
+        NavigationLink(
+          destination: DownloadView(file: selected).environmentObject(model),
+          isActive: $isDisplayingDownload
+        ) {
           EmptyView()
         }.hidden()
         // The list of files avalable for download.
         List {
-          Section(content: {
-            if files.isEmpty {
-              ProgressView().padding()
-            }
-            ForEach(files) { file in
-              Button(action: {
-                selected = file
-              }, label: {
-                FileListItem(file: file)
-              })
-            }
-          }, header: {
-            Label(" SuperStorage", systemImage: "externaldrive.badge.icloud")
-              .font(.custom("SerreriaSobria", size: 27))
-              .foregroundColor(Color.accentColor)
-              .padding(.bottom, 20)
-          }, footer: {
-            Text(status)
-          })
+          Section(
+            content: {
+              if files.isEmpty {
+                ProgressView().padding()
+              }
+              ForEach(files) { file in
+                Button(
+                  action: {
+                    selected = file
+                  },
+                  label: {
+                    FileListItem(file: file)
+                  })
+              }
+            },
+            header: {
+              Label(" SuperStorage", systemImage: "externaldrive.badge.icloud")
+                .font(.custom("SerreriaSobria", size: 27))
+                .foregroundColor(Color.accentColor)
+                .padding(.bottom, 20)
+            },
+            footer: {
+              Text(status)
+            })
         }
         .listStyle(InsetGroupedListStyle())
         .animation(.easeOut(duration: 0.33), value: files)
       }
-      .alert("Error", isPresented: $isDisplayingError, actions: {
-        Button("Close", role: .cancel) { }
-      }, message: {
-        Text(lastErrorMessage)
-      })
+      .alert(
+        "Error", isPresented: $isDisplayingError,
+        actions: {
+          Button("Close", role: .cancel) {}
+        },
+        message: {
+          Text(lastErrorMessage)
+        })
     }
   }
 }

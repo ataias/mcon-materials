@@ -30,8 +30,8 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-import SwiftUI
 import Combine
+import SwiftUI
 
 struct LoadingView: View {
   @EnvironmentObject var model: EmojiArtModel
@@ -79,11 +79,15 @@ struct LoadingView: View {
         }
       }
     }
-    .alert("Error", isPresented: $isDisplayingError, actions: {
-      Button("Close", role: .cancel) { }
-    }, message: {
-      Text(lastErrorMessage)
-    })
+    .alert(
+      "Error", isPresented: $isDisplayingError,
+      actions: {
+        Button("Close", role: .cancel) {}
+      },
+      message: {
+        Text(lastErrorMessage)
+      }
+    )
     .onReceive(timer) { _ in
       guard !model.imageFeed.isEmpty else { return }
 

@@ -50,21 +50,24 @@ struct SymbolListView: View {
     NavigationView {
       VStack {
         // Programatically push the live ticker view.
-        NavigationLink(destination: TickerView(selectedSymbols: Array($selected.wrappedValue).sorted())
-                        .environmentObject(model), isActive: $isDisplayingTicker) {
+        NavigationLink(
+          destination: TickerView(selectedSymbols: Array($selected.wrappedValue).sorted())
+            .environmentObject(model), isActive: $isDisplayingTicker
+        ) {
           EmptyView()
         }.hidden()
         // The list of stock symbols.
         List {
-          Section(content: {
-            if symbols.isEmpty {
-              ProgressView().padding()
-            }
-            ForEach(symbols, id: \.self) { symbolName in
-              SymbolRow(symbolName: symbolName, selected: $selected)
-            }
-            .font(.custom("FantasqueSansMono-Regular", size: 18))
-          }, header: Header.init)
+          Section(
+            content: {
+              if symbols.isEmpty {
+                ProgressView().padding()
+              }
+              ForEach(symbols, id: \.self) { symbolName in
+                SymbolRow(symbolName: symbolName, selected: $selected)
+              }
+              .font(.custom("FantasqueSansMono-Regular", size: 18))
+            }, header: Header.init)
         }
         .listStyle(PlainListStyle())
         .statusBar(hidden: true)
@@ -76,11 +79,15 @@ struct SymbolListView: View {
           }
           .disabled(selected.isEmpty)
         }
-        .alert("Error", isPresented: $isDisplayingError, actions: {
-          Button("Close", role: .cancel) { }
-        }, message: {
-          Text(lastErrorMessage)
-        })
+        .alert(
+          "Error", isPresented: $isDisplayingError,
+          actions: {
+            Button("Close", role: .cancel) {}
+          },
+          message: {
+            Text(lastErrorMessage)
+          }
+        )
         .padding(.horizontal)
         .task {
           guard symbols.isEmpty else { return }
