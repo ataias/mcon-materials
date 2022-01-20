@@ -76,10 +76,20 @@ struct TickerView: View {
     .listStyle(PlainListStyle())
     .font(.custom("FantasqueSansMono-Regular", size: 18))
     .padding(.horizontal)
+    .onChange(of: model.tickerSymbols.count, perform: { newValue in
+      if newValue == 0 {
+        presentationMode.wrappedValue.dismiss()
+      }
+    })
     .task {
       do {
         try await model.startTicker(selectedSymbols)
       } catch {
+        // When the task gets cancelled, for instance when you move out of the TickerView screen, it throws an error. We don't really care about it, so we shouldn't try to show an alert.
+        if let error = error as? URLError,
+           error.code == .cancelled {
+          return
+        }
         lastErrorMessage = error.localizedDescription
       }
     }

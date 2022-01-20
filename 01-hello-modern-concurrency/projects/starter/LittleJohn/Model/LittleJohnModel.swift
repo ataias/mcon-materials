@@ -65,6 +65,10 @@ class LittleJohnModel: ObservableObject {
         print("Updated: \(Date())")
       }
     }
+    print("Finished streaming")
+    await MainActor.run {
+      tickerSymbols = []
+    }
   }
 
   func availableSymbols() async throws -> [String] {
