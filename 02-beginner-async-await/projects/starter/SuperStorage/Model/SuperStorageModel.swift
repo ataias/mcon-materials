@@ -37,6 +37,21 @@ class SuperStorageModel: ObservableObject {
   /// The list of currently running downloads.
   @Published var downloads: [DownloadInfo] = []
 
+  func availableFiles() async throws -> [DownloadFile] {
+    guard let url = URL(string: "http://localhost:8080/files/list") else {
+      throw "Could not create URL"
+    }
+    
+    let (data, response) = try await URLSession.shared.data(from: url)
+    guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+      throw "The server responded with an error"
+    }
+    guard let list = try? JSONDecoder().decode([DownloadFile].self, from: data) else {
+      throw "The server response was not recognized"
+    }
+    return list
+  }
+  
   /// Downloads a file and returns its content.
   func download(file: DownloadFile) async throws -> Data {
     guard let url = URL(string: "http://localhost:8080/files/download?\(file.name)") else {
