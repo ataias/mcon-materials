@@ -51,6 +51,9 @@ struct DownloadView: View {
         isDownloadActive: $isDownloadActive,
         downloadSingleAction: {
           // Download a file in a single go.
+          Task { // you need a new task when you want to run asynchronous code from a synchronous context
+            fileData = try await model.download(file: file)
+          }
         },
         downloadWithUpdatesAction: {
           // Download a file with UI progress updates.
@@ -75,7 +78,7 @@ struct DownloadView: View {
         action: {
         }, label: { Text("Cancel All") }
       )
-      .disabled(model.downloads.isEmpty)
+        .disabled(model.downloads.isEmpty)
     })
   }
 }
