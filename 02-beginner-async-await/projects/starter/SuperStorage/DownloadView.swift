@@ -80,5 +80,9 @@ struct DownloadView: View {
       )
         .disabled(model.downloads.isEmpty)
     })
+    .onDisappear {
+      fileData = nil
+      model.reset()
+    }
   }
 }
