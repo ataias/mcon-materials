@@ -32,6 +32,7 @@
 
 import SwiftUI
 import UIKit
+import Combine
 
 /// The file download view.
 struct DownloadView: View {
@@ -44,7 +45,29 @@ struct DownloadView: View {
   @State var isDownloadActive = false
   @State var duration = ""
   
-  @State var downloadTask: Task<Void, Error>?
+  @State var downloadTask: Task<Void, Error>? {
+    didSet {
+      timerTask?.cancel()
+      guard isDownloadActive else { return }
+      let startTime = Date().timeIntervalSince1970
+      
+      let timerSequence = Timer
+        .publish(every: 1, tolerance: 1, on: .main, in: .common)
+        .autoconnect()
+        .map { date -> String in
+          let duration = Int(date.timeIntervalSince1970 - startTime)
+          return "\(duration)s"
+        }
+        .values
+      timerTask = Task {
+        for await duration in timerSequence {
+          self.duration = duration
+        }
+      }
+    }
+  }
+  @State var timerTask: Task<Void, Error>? 
+  
   var body: some View {
     List {
       // Show the details of the selected file and download buttons.
