@@ -42,6 +42,7 @@ struct DownloadView: View {
   @State var fileData: Data?
   /// Should display a download activity indicator.
   @State var isDownloadActive = false
+  @State var duration = ""
   
   @State var downloadTask: Task<Void, Error>?
   var body: some View {
@@ -83,6 +84,12 @@ struct DownloadView: View {
         // Show progress for any ongoing downloads.
         Downloads(downloads: model.downloads)
       }
+      if !duration.isEmpty {
+        Text("Duration: \(duration)")
+          .font(.caption)
+      }
+      
+      
       if let fileData = fileData {
         // Show a preview of the file if it's a valid image.
         FilePreview(fileData: fileData)
