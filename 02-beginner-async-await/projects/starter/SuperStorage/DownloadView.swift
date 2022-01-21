@@ -52,7 +52,9 @@ struct DownloadView: View {
         downloadSingleAction: {
           // Download a file in a single go.
           Task { // you need a new task when you want to run asynchronous code from a synchronous context
+            isDownloadActive = true
             fileData = try await model.download(file: file)
+            isDownloadActive = false
           }
         },
         downloadWithUpdatesAction: {
