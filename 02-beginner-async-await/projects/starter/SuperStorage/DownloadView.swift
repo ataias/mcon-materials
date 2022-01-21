@@ -66,7 +66,11 @@ struct DownloadView: View {
           isDownloadActive = true
           downloadTask = Task {
             do {
-              fileData = try await model.downloadWithProgress(file: file)
+              try await SuperStorageModel
+                .$supportsPartialDownloads
+                .withValue(file.name.hasSuffix(".jpeg"), operation: {
+                  fileData = try await model.downloadWithProgress(file: file)
+                })
             } catch { }
             isDownloadActive = false
           }
@@ -89,6 +93,7 @@ struct DownloadView: View {
     .toolbar(content: {
       Button(
         action: {
+          model.stopDownloads = true
         }, label: { Text("Cancel All") }
       )
         .disabled(model.downloads.isEmpty)
