@@ -42,6 +42,8 @@ struct DownloadView: View {
   @State var fileData: Data?
   /// Should display a download activity indicator.
   @State var isDownloadActive = false
+  
+  @State var downloadTask: Task<Void, Error>?
   var body: some View {
     List {
       // Show the details of the selected file and download buttons.
@@ -52,7 +54,7 @@ struct DownloadView: View {
         downloadSingleAction: {
           // Download a file in a single go.
           isDownloadActive = true
-          Task { // you need a new task when you want to run asynchronous code from a synchronous context
+          downloadTask = Task { // you need a new task when you want to run asynchronous code from a synchronous context
             do {
               fileData = try await model.download(file: file)
             } catch { }
@@ -62,7 +64,7 @@ struct DownloadView: View {
         downloadWithUpdatesAction: {
           // Download a file with UI progress updates.
           isDownloadActive = true
-          Task {
+          downloadTask = Task {
             do {
               fileData = try await model.downloadWithProgress(file: file)
             } catch { }
@@ -93,6 +95,7 @@ struct DownloadView: View {
     })
     .onDisappear {
       fileData = nil
+      downloadTask?.cancel()
       model.reset()
     }
   }
