@@ -46,7 +46,7 @@ class ByteAccumulator: CustomStringConvertible {
   init(name: String, size: Int) {
     self.name = name
     self.size = size
-    chunkCount = max(Int(Double(size) / 20), 1)
+    chunkCount = max(Int(Double(size) / 50), 1)
     bytes = [UInt8](repeating: 0, count: size)
   }
 

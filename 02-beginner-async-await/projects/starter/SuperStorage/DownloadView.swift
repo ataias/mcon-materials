@@ -51,14 +51,23 @@ struct DownloadView: View {
         isDownloadActive: $isDownloadActive,
         downloadSingleAction: {
           // Download a file in a single go.
+          isDownloadActive = true
           Task { // you need a new task when you want to run asynchronous code from a synchronous context
-            isDownloadActive = true
-            fileData = try await model.download(file: file)
+            do {
+              fileData = try await model.download(file: file)
+            } catch { }
             isDownloadActive = false
           }
         },
         downloadWithUpdatesAction: {
           // Download a file with UI progress updates.
+          isDownloadActive = true
+          Task {
+            do {
+              fileData = try await model.downloadWithProgress(file: file)
+            } catch { }
+            isDownloadActive = false
+          }
         },
         downloadMultipleAction: {
           // Download a file in multiple concurrent parts.
