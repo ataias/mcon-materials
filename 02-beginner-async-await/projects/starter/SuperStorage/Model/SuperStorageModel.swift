@@ -137,17 +137,21 @@ class SuperStorageModel: ObservableObject {
     }
     let total = 4
     let parts = (0..<total).map { partInfo(index: $0, of: total) }
-    async let download1 = downloadWithProgress(fileName: file.name, name: parts[0].name, size: parts[0].size, offset: parts[0].offset)
-    async let download2 = downloadWithProgress(fileName: file.name, name: parts[1].name, size: parts[1].size, offset: parts[1].offset)
-    async let download3 = downloadWithProgress(fileName: file.name, name: parts[2].name, size: parts[2].size, offset: parts[2].offset)
-    async let download4 = downloadWithProgress(fileName: file.name, name: parts[3].name, size: parts[3].size, offset: parts[3].offset)
-    let (p1, p2, p3, p4) = try await (download1, download2, download3, download4)
-    var data = Data()
-    data.append(p1)
-    data.append(p2)
-    data.append(p3)
-    data.append(p4)
     
+    var partialDownloads = [(index: Int, data: Data)]()
+    try await withThrowingTaskGroup(of: (index: Int, data: Data).self, body: { group in
+      for (index, part) in parts.enumerated() {
+        group.addTask {
+          let partialDownload = try await self.downloadWithProgress(fileName: file.name, name: part.name, size: part.size, offset: part.offset)
+          return (index: index, data: partialDownload)
+        }
+      }
+      for try await partialDownload in group {
+        partialDownloads.append(partialDownload)
+      }
+    })
+    
+    let data = partialDownloads.sorted { $0.index < $1.index }.map(\.data).reduce(Data(), +)
     return data
   }
 
