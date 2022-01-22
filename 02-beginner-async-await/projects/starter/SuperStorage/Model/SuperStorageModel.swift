@@ -116,7 +116,7 @@ class SuperStorageModel: ObservableObject {
         accumulator.append(byte)
       }
       Task.detached(priority: .medium) { [weak self] in
-        await self?.updateDownload(name: fileName, progress: accumulator.progress)
+        await self?.updateDownload(name: name, progress: accumulator.progress)
       }
       print(accumulator.description)
     }
@@ -137,8 +137,18 @@ class SuperStorageModel: ObservableObject {
     }
     let total = 4
     let parts = (0..<total).map { partInfo(index: $0, of: total) }
-    // Add challenge code here.
-    return Data()
+    async let download1 = try await downloadWithProgress(fileName: file.name, name: parts[0].name, size: parts[0].size, offset: parts[0].offset)
+    async let download2 = try await downloadWithProgress(fileName: file.name, name: parts[1].name, size: parts[1].size, offset: parts[1].offset)
+    async let download3 = try await downloadWithProgress(fileName: file.name, name: parts[2].name, size: parts[2].size, offset: parts[2].offset)
+    async let download4 = try await downloadWithProgress(fileName: file.name, name: parts[3].name, size: parts[3].size, offset: parts[3].offset)
+    let (p1, p2, p3, p4) = try await (download1, download2, download3, download4)
+    var data = Data()
+    data.append(p1)
+    data.append(p2)
+    data.append(p3)
+    data.append(p4)
+    
+    return data
   }
 
   /// Flag that stops ongoing downloads.
