@@ -34,6 +34,8 @@ import Foundation
 
 /// A catch-all URL protocol that returns successful response and records all requests.
 class TestURLProtocol: URLProtocol {
+  static var lastRequest: URLRequest?
+  
   override class func canInit(with request: URLRequest) -> Bool {
     return true
   }
@@ -58,6 +60,14 @@ class TestURLProtocol: URLProtocol {
     client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
     client.urlProtocol(self, didLoad: Data())
     client.urlProtocolDidFinishLoading(self)
+    
+    guard let stream = request.httpBodyStream else {
+      fatalError("Unexpected test scenario")
+    }
+    
+    var request = request
+    request.httpBody = stream.data
+    Self.lastRequest = request
   }
 
   override func stopLoading() {
