@@ -49,7 +49,23 @@ Task {
   let url = URL(string: "http://localhost:8080/cli/chat?\(username)")!
   do {
     // Loop over the server response lines and print them.
-
+    let (stream, response) = try await liveURLSession.bytes(from: url)
+    guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+      throw "Failed to connect."
+    }
+    for try await line in stream.lines {
+      guard
+        let data = line.dropFirst(8).data(using: .utf8),
+        let message = try? JSONDecoder().decode(Message.self, from: data)
+      else {
+        print(line)
+        continue
+      }
+      if message.user == username {
+        continue
+      }
+      print("[\(message.user ?? "anonymous")] \(message.message)")
+    }
   } catch {
     print(error.localizedDescription)
     exit(1)
@@ -59,8 +75,48 @@ Task {
 Task {
   let url = URL(string: "http://localhost:8080/cli/say")!
 
-  // Loop over the lines in the standard input and send them to the server.
+  do {
+    // Loop over the lines in the standard input and send them to the server.
+    while let line = readLine() {
+      var request = URLRequest(url: url)
+      request.httpMethod = "POST"
+      request.httpBody = try JSONEncoder().encode(
+        Message(message: line, user: username)
+      )
+      
+      let (_, response) = try await URLSession.shared.data(for: request, delegate: nil)
+      guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+        throw "The server responded with an error."
+      }
+    }
+  } catch {
+    print(error.localizedDescription)
+    exit(1)
+  }
 
 }
 
 RunLoop.main.run()
+
+/// Easily throw generic errors with a text description.
+extension String: LocalizedError {
+  public var errorDescription: String? {
+    return self
+  }
+}
+
+struct Message: Codable, Identifiable, Hashable {
+  let id: UUID
+  let user: String?
+  let message: String
+  var date: Date
+}
+
+extension Message {
+  init(message: String, user: String? = nil) {
+    self.id = .init()
+    self.date = .init()
+    self.user = user
+    self.message = message
+  }
+}
