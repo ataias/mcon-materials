@@ -39,6 +39,7 @@ import UIKit
 class BlabberModel: ObservableObject {
   var username = ""
   var urlSession = URLSession.shared
+  private var delegate: ChatLocationDelegate?
 
   init() {
   }
@@ -48,6 +49,10 @@ class BlabberModel: ObservableObject {
 
   /// Shares the current user's address in chat.
   func shareLocation() async throws {
+    let location: CLLocation = try await withCheckedThrowingContinuation({ [weak self] continuation in
+      self?.delegate = ChatLocationDelegate(continuation: continuation)
+    })
+    print(location.description)
   }
 
   /// Does a countdown and sends the message.
