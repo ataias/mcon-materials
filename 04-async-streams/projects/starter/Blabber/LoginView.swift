@@ -46,12 +46,11 @@ struct LoginView: View {
       HStack {
         TextField(text: $username, prompt: Text("Username")) {}
           .textFieldStyle(RoundedBorderTextFieldStyle())
+          .disableAutocorrection(true)
+          .onSubmit(login)
 
         Button(
-          action: {
-            model.username = username
-            self.isDisplayingChat = true
-          },
+          action: login,
           label: {
             Image(systemName: "arrow.right.circle.fill")
               .font(.title)
@@ -67,5 +66,10 @@ struct LoginView: View {
       .padding(.horizontal)
     }
     .statusBar(hidden: true)
+  }
+  
+  func login() {
+    model.username = username
+    isDisplayingChat = true
   }
 }
