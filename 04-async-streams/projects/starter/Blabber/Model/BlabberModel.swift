@@ -134,8 +134,16 @@ class BlabberModel: ObservableObject {
   }
   
   func observeAppStatus() async {
-    for await _ in await NotificationCenter.default.notifications(for: UIApplication.willResignActiveNotification) {
-      try? await say("\(username) went away", isSystemMessage: true)
+    Task {
+      for await _ in await NotificationCenter.default.notifications(for: UIApplication.willResignActiveNotification) {
+        try? await say("\(username) went away", isSystemMessage: true)
+      }
+    }
+    
+    Task {
+      for await _ in await NotificationCenter.default.notifications(named: UIApplication.didBecomeActiveNotification) {
+        try? await say("\(username) came back", isSystemMessage: true)
+      }
     }
   }
 
