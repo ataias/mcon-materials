@@ -38,7 +38,7 @@ class BlabberTests: XCTestCase {
   let model: BlabberModel = {
     let model = BlabberModel()
     model.username = "test"
-
+    
     let testConfiguration = URLSessionConfiguration.default
     testConfiguration.protocolClasses = [TestURLProtocol.self]
     
@@ -58,5 +58,29 @@ class BlabberTests: XCTestCase {
     let httpBody = try XCTUnwrap(request.httpBody)
     let message = try XCTUnwrap(try? JSONDecoder().decode(Message.self, from: httpBody))
     XCTAssertEqual(message.message, "Hello!")
+  }
+  
+  func testModelCountdown() async throws {
+    async let messages = TimeoutTask(seconds: 10) {
+      await TestURLProtocol.requests
+        .prefix(4)
+        .reduce(into: []) { partialResult, request in
+          partialResult.append(request)
+        }
+        .compactMap(\.httpBody)
+        .compactMap { data in
+          try? JSONDecoder()
+            .decode(Message.self, from: data)
+            .message
+        }
+    }.value
+    async let countdown: Void = model.countdown(to: "Tada!")
+    
+    let (messagesResult, _) = try await (messages, countdown)
+    
+    XCTAssertEqual(
+      ["3...", "2...", "1...", "🎉 Tada!"],
+      messagesResult
+    )
   }
 }
