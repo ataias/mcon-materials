@@ -45,7 +45,8 @@ struct ScanTask: Identifiable {
   /// A method that performs the scanning.
   /// > Note: This is a mock method that just suspends for a second.
   func run() async -> String {
-    await Task {
+    // If you leave the default priority and that priority is the same as updating the way, we may end up running all the scans without updating the UI until the end, what is bad UX. Setting it to medium makes sure we update the UI when work for it comes.
+    await Task(priority: .medium) {
       // Block the thread as a real heavy-computation functon will.
       Thread.sleep(forTimeInterval: 1)
     }.value
