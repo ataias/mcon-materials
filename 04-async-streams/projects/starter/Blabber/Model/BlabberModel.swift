@@ -69,8 +69,8 @@ class BlabberModel: ObservableObject {
       }
     }
     
-    for await countdownMessage in counter {
-      try await say(countdownMessage)
+    try await counter.forEach { [weak self] in
+      try await self?.say($0)
     }
   }
 
@@ -172,4 +172,13 @@ class BlabberModel: ObservableObject {
     configuration.timeoutIntervalForRequest = .infinity
     return URLSession(configuration: configuration)
   }()
+}
+
+// MARK: Async Sequence
+extension AsyncSequence {
+  func forEach(_ body: (Element) async throws -> Void) async throws {
+    for try await element in self {
+      try await body(element)
+    }
+  }
 }
