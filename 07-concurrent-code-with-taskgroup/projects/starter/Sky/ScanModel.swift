@@ -81,6 +81,13 @@ class ScanModel: ObservableObject {
           index += 1
         }
       }
+      
+      // Clean stats after running
+      await MainActor.run {
+        completed = 0
+        countPerSecond = 0
+        scheduled = 0
+      }
       print("Done")
     }
     
