@@ -62,21 +62,26 @@ class ScanModel: ObservableObject {
     started = Date()
     
     // We can use `withTaskGroup` and just include all tasks we want; it will schedule them to run in existing threads. However, we can also control how many tasks are scheduled at any given time, so that we effectivelly limit thread usage. The code below went through both versions.
-    try await withThrowingTaskGroup(of: String.self) { [unowned self] group in
+    await withTaskGroup(of: Result<String, Error>.self) { [unowned self] group in
       let batchSize = 4
       for index in 0..<batchSize {
         group.addTask {
-          try await self.worker(number: index)
+          await self.worker(number: index)
         }
       }
       var index = batchSize
       
-      for try await result in group {
-        print("Completed: \(result)")
+      for await result in group {
+        switch result {
+        case .success(let result):
+          print("Completed: \(result)")
+        case .failure(let error):
+          print("Failed: \(error.localizedDescription)")
+        }
         
         if index < total {
           group.addTask { [index] in
-            try await self.worker(number: index)
+            await self.worker(number: index)
           }
           index += 1
         }
@@ -84,7 +89,7 @@ class ScanModel: ObservableObject {
       
       // Clean stats after running
       await MainActor.run {
-        completed = 0
+//        completed = 0
         countPerSecond = 0
         scheduled = 0
       }
@@ -112,13 +117,18 @@ extension ScanModel {
 }
 
 extension ScanModel {
-  func worker(number: Int) async throws -> String {
+  func worker(number: Int) async -> Result<String, Error> {
     await onScheduled()
     
     let task = ScanTask(input: number)
-    let result = try await task.run()
+    let result: String
+    do {
+      result = try await task.run()
+    } catch {
+      return .failure(error)
+    }
     
     await onTaskCompleted()
-    return result
+    return .success(result)
   }
 }
