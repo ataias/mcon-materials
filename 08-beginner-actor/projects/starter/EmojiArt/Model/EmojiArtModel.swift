@@ -37,7 +37,7 @@ actor EmojiArtModel: ObservableObject {
   private(set) var verifiedCount = 0
   @Published @MainActor private(set) var imageFeed: [ImageFile] = []
 
-  func loadImages() async throws {
+  nonisolated func loadImages() async throws {
     await MainActor.run {
       imageFeed.removeAll()
     }
@@ -57,7 +57,7 @@ actor EmojiArtModel: ObservableObject {
   }
 
   /// Downloads an image and returns its content.
-  func downloadImage(_ image: ImageFile) async throws -> Data {
+  nonisolated func downloadImage(_ image: ImageFile) async throws -> Data {
     guard let url = URL(string: "http://localhost:8080\(image.url)") else {
       throw "Could not create image URL"
     }
