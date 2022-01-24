@@ -62,21 +62,21 @@ class ScanModel: ObservableObject {
     started = Date()
     
     // We can use `withTaskGroup` and just include all tasks we want; it will schedule them to run in existing threads. However, we can also control how many tasks are scheduled at any given time, so that we effectivelly limit thread usage. The code below went through both versions.
-    await withTaskGroup(of: String.self) { [unowned self] group in
+    try await withThrowingTaskGroup(of: String.self) { [unowned self] group in
       let batchSize = 4
       for index in 0..<batchSize {
         group.addTask {
-          await self.worker(number: index)
+          try await self.worker(number: index)
         }
       }
       var index = batchSize
       
-      for await result in group {
+      for try await result in group {
         print("Completed: \(result)")
         
         if index < total {
           group.addTask { [index] in
-            await self.worker(number: index)
+            try await self.worker(number: index)
           }
           index += 1
         }
@@ -112,11 +112,11 @@ extension ScanModel {
 }
 
 extension ScanModel {
-  func worker(number: Int) async -> String {
+  func worker(number: Int) async throws -> String {
     await onScheduled()
     
     let task = ScanTask(input: number)
-    let result = await task.run()
+    let result = try await task.run()
     
     await onTaskCompleted()
     return result
