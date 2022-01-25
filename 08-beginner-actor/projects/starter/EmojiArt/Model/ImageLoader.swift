@@ -15,10 +15,12 @@ actor ImageLoader: ObservableObject {
   }
   
   func setUp() async {
-    let accessStream = AsyncStream<Int> { continuation in
+    let inMemoryAccessStream = AsyncStream<Int> { continuation in
       inMemoryAccessContinuation = continuation
     }
-    await MainActor.run { inMemoryAccess = accessStream }
+    await MainActor.run {
+      inMemoryAccess = inMemoryAccessStream
+    }
   }
   
   func add(_ image: UIImage, forKey key: String) {

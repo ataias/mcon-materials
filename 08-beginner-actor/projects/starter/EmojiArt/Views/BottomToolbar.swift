@@ -75,5 +75,13 @@ struct BottomToolbar: View {
         inMemoryAccessCount = count
       }
     }
+    .task {
+      guard let diskAccessSequence = ImageDatabase.shared.inDiskAccess else {
+        return
+      }
+      for await count in diskAccessSequence {
+        onDiskAccessCount = count
+      }
+    }
   }
 }

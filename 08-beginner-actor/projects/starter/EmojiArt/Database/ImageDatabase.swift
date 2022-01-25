@@ -8,11 +8,24 @@ import UIKit
   private var storage: DiskStorage!
   private var storedImagesIndex = [String]()
   
+  @MainActor private(set) var inDiskAccess: AsyncStream<Int>?
+  private var inDiskAccessContinuation: AsyncStream<Int>.Continuation?
+  private var inDiskAccessCounter = 0 {
+    didSet { inDiskAccessContinuation?.yield(inDiskAccessCounter) }
+  }
+  
   func setUp() async throws {
     storage = await DiskStorage()
     for fileURL in try await storage.persistedFiles() {
       storedImagesIndex.append(fileURL.lastPathComponent)
     }
+    let inDiskAccessStream = AsyncStream<Int> { continuation in
+      inDiskAccessContinuation = continuation
+    }
+    await MainActor.run {
+      inDiskAccess = inDiskAccessStream
+    }
+    
     await imageLoader.setUp()
   }
   
@@ -43,6 +56,7 @@ import UIKit
         throw "Invalid image data"
       }
       print("Cached on disk")
+      inDiskAccessCounter += 1
       await imageLoader.add(image, forKey: key)
       return image
       
