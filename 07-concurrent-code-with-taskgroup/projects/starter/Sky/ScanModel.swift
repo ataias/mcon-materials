@@ -36,6 +36,8 @@ class ScanModel: ObservableObject {
   // MARK: - Private state
   private var counted = 0
   private var started = Date()
+  private var systems: Systems
+  private(set) var service: ScanTransport
 
   // MARK: - Public, bindable state
 
@@ -51,11 +53,20 @@ class ScanModel: ObservableObject {
   @Published var total: Int
 
   @MainActor @Published var isCollaborating = false
+  
+  @MainActor @Published var isConnected = false
 
   // MARK: - Methods
 
   init(total: Int, localName: String) {
     self.total = total
+    
+    let localSystem = ScanSystem(name: localName)
+    systems = Systems(localSystem)
+    service = ScanTransport(localSystem: localSystem)
+    service.taskModel = self
+    
+    systemConnectivityHandler()
   }
 
   func runAllTasks() async throws {
@@ -130,5 +141,31 @@ extension ScanModel {
     
     await onTaskCompleted()
     return .success(result)
+  }
+}
+
+extension ScanModel {
+  func systemConnectivityHandler() {
+    Task {
+      for await notification in NotificationCenter.default.notifications(named: .connected) {
+        guard let name = notification.object as? String else { continue }
+        print("[Notification] Connected: \(name)")
+        await systems.addSystem(name: name, service: self.service)
+        Task { @MainActor in
+          isConnected = await systems.systems.count > 1
+        }
+      }
+    }
+    
+    Task {
+      for await notification in NotificationCenter.default.notifications(named: .disconnected) {
+        guard let name = notification.object as? String else { return }
+        print("[Notification] Disconnected: \(name)")
+        await systems.removeSystem(name: name)
+        Task { @MainActor in
+          isConnected = await systems.systems.count > 1
+        }
+      }
+    }
   }
 }
