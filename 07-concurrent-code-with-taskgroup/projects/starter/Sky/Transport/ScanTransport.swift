@@ -98,6 +98,18 @@ extension ScanTransport: MCSessionDelegate {
 
   /// Handles incoming data.
   func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+    let decoder = JSONDecoder()
+    
+    if let task = try? decoder.decode(ScanTask.self, from: data) {
+      Task { [weak self] in
+        guard let self = self, let taskModel = self.taskModel else { return }
+        let result = try await taskModel.run(task)
+        let response = TaskResponse(result: result, id: task.id)
+        try self.send(response: response, to: peerID)
+      }
+    } else if let response = try? decoder.decode(TaskResponse.self, from: data) {
+      NotificationCenter.default.post(name: .response, object: response)
+    }
   }
 }
 
@@ -140,6 +152,7 @@ extension ScanTransport {
 }
 
 extension ScanTransport {
+  /// Send a task to a remote
   func send(task: ScanTask, to recipient: String) async throws -> String {
     guard let targetPeer = session.connectedPeers.first(where: { $0.displayName == recipient}) else {
       throw "Peer '\(recipient)' not connected anymore."
@@ -167,5 +180,15 @@ extension ScanTransport {
       }
     }
     return try await networkRequest.value
+  }
+  
+  /// Send a task response to a remote
+  func send(response: TaskResponse, to peerID: MCPeerID) throws {
+    guard session.connectedPeers.contains(peerID) else {
+      throw "Peer '\(peerID)' not connected anymore."
+    }
+    
+    let payload = try JSONEncoder().encode(response)
+    try session.send(payload, toPeers: [peerID], with: .reliable)
   }
 }
