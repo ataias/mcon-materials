@@ -80,7 +80,7 @@ class ScanModel: ObservableObject {
     started = Date()
     
     // We can use `withTaskGroup` and just include all tasks we want; it will schedule them to run in existing threads. However, we can also control how many tasks are scheduled at any given time, so that we effectivelly limit thread usage. The code below went through both versions.
-    try await withThrowingTaskGroup(of: Result<String, Error>.self) { [unowned self] group in
+    try await withThrowingTaskGroup(of: Result<String, ScanTaskError>.self) { [unowned self] group in
       for number in 0 ..< total {
         let system = await systems.firstAvailableSystem()
         group.addTask {
@@ -92,7 +92,11 @@ class ScanModel: ObservableObject {
         case .success(let result):
           print("Completed: \(result)")
         case .failure(let error):
-          print("Failed: \(error.localizedDescription)")
+          // TODO: we just retry indefinitely. Should keep track of how many times we tried
+          group.addTask(priority: .high) {
+            print("Re-run task: \(error.task.input)", "Failed with: \(error.underlyingError)")
+            return await self.worker(number: error.task.input, system: self.systems.localSystem)
+          }
         }
       }
       
@@ -126,7 +130,7 @@ extension ScanModel {
 }
 
 extension ScanModel {
-  func worker(number: Int, system: ScanSystem) async -> Result<String, Error> {
+  func worker(number: Int, system: ScanSystem) async -> Result<String, ScanTaskError> {
     await onScheduled()
     
     let task = ScanTask(input: number)
@@ -134,7 +138,7 @@ extension ScanModel {
     do {
       result = try await system.run(task)
     } catch {
-      return .failure(error)
+      return .failure(.init(underlyingError: error, task: task))
     }
     
     await onTaskCompleted()
@@ -174,4 +178,9 @@ extension ScanModel {
     }
     return try await systems.localSystem.run(task)
   }
+}
+
+struct ScanTaskError: Error {
+  let underlyingError: Error
+  let task: ScanTask
 }
