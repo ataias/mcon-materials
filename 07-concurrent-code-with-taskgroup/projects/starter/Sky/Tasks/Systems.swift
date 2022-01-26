@@ -24,4 +24,14 @@ actor Systems {
   func removeSystem(name: String) {
     systems.removeAll { $0.name == name }
   }
+  
+  func firstAvailableSystem() async -> ScanSystem {
+    while true {
+      for nextSystem in systems where await nextSystem.count < 4 {
+        await nextSystem.commit()
+        return nextSystem
+      }
+      await Task.sleep(seconds: 0.1)
+    }
+  }
 }
