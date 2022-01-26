@@ -42,7 +42,14 @@ class ScanModel: ObservableObject {
   // MARK: - Public, bindable state
 
   /// Currently scheduled for execution tasks.
-  @MainActor @Published var scheduled = 0
+  @MainActor @Published var scheduled = 0 {
+    didSet {
+      Task {
+        let systemCount = await systems.systems.count
+        isCollaborating = scheduled > 0 && systemCount > 1
+      }
+    }
+  }
 
   /// Completed scan tasks per second.
   @MainActor @Published var countPerSecond: Double = 0
