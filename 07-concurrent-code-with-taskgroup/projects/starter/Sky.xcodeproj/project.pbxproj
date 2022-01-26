@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		42AB048227A1567D005D3BAB /* ScanSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42AB048127A1567D005D3BAB /* ScanSystem.swift */; };
 		9C04757826EB5534009EA1EC /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 9C04757726EB5534009EA1EC /* LICENSE */; };
 		9C594C4326BD84520027B2C4 /* Datalegreya-Gradient.otf in Resources */ = {isa = PBXBuildFile; fileRef = 9C594C4226BD84520027B2C4 /* Datalegreya-Gradient.otf */; };
 		9C594C4826BD9F880027B2C4 /* ScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C594C4726BD9F880027B2C4 /* ScanTask.swift */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		42AB048127A1567D005D3BAB /* ScanSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanSystem.swift; sourceTree = "<group>"; };
 		9C04757726EB5534009EA1EC /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		9C594C4226BD84520027B2C4 /* Datalegreya-Gradient.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Datalegreya-Gradient.otf"; sourceTree = "<group>"; };
 		9C594C4726BD9F880027B2C4 /* ScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTask.swift; sourceTree = "<group>"; };
@@ -78,6 +80,7 @@
 			isa = PBXGroup;
 			children = (
 				9C594C4726BD9F880027B2C4 /* ScanTask.swift */,
+				42AB048127A1567D005D3BAB /* ScanSystem.swift */,
 			);
 			path = Tasks;
 			sourceTree = "<group>";
@@ -228,6 +231,7 @@
 				9CD220CD26EA00D2007F8A1E /* Utility.swift in Sources */,
 				9CD5AE6E26A13FB10010330C /* SkyApp.swift in Sources */,
 				9CD5AE7E26A144E50010330C /* ScanningView.swift in Sources */,
+				42AB048227A1567D005D3BAB /* ScanSystem.swift in Sources */,
 				9C594C4826BD9F880027B2C4 /* ScanTask.swift in Sources */,
 				9C934CEF26EA124F0046A00D /* TitleView.swift in Sources */,
 				9C92C33726EA61C600115EC7 /* TimeoutTask.swift in Sources */,
