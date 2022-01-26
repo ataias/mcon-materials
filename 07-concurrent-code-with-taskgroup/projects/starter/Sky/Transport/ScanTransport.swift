@@ -138,3 +138,34 @@ extension ScanTransport {
   func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) { }
   func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) { }
 }
+
+extension ScanTransport {
+  func send(task: ScanTask, to recipient: String) async throws -> String {
+    guard let targetPeer = session.connectedPeers.first(where: { $0.displayName == recipient}) else {
+      throw "Peer '\(recipient)' not connected anymore."
+    }
+    
+    let payload = try JSONEncoder().encode(task)
+    try session.send(payload, toPeers: [targetPeer], with: .reliable)
+    let networkRequest = TimeoutTask(seconds: 5) { () -> String in
+      for await notification in NotificationCenter.default.notifications(named: .response) {
+        guard
+          let response = notification.object as? TaskResponse,
+          response.id == task.id
+        else {
+          continue
+        }
+        return "\(response.result) by \(recipient)"
+      }
+      fatalError("Will never execute")
+    }
+    
+    Task {
+      for await notification in NotificationCenter.default.notifications(named: .disconnected) {
+        guard notification.object as? String == recipient else { continue }
+        await networkRequest.cancel()
+      }
+    }
+    return try await networkRequest.value
+  }
+}

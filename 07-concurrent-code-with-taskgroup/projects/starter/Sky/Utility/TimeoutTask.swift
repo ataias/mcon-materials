@@ -32,7 +32,7 @@
 
 import Foundation
 
-class TimeoutTask<Success> {
+actor TimeoutTask<Success> {
   struct TimeoutError: LocalizedError {
     var errorDescription: String? {
       return "The operation timed out."

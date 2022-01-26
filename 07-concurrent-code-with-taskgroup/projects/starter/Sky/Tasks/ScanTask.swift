@@ -33,7 +33,7 @@
 import Foundation
 
 /// A single scanning task.
-struct ScanTask: Identifiable {
+struct ScanTask: Identifiable, Codable {
   let id: UUID
   let input: Int
 
@@ -54,4 +54,10 @@ struct ScanTask: Identifiable {
 
     return "\(input)"
   }
+}
+
+
+struct TaskResponse: Codable {
+  let result: String
+  let id: UUID
 }
